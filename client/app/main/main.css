@@ -95,3 +95,7 @@ body {
   border-radius: 5px;
   outline: 0;
 }
+
+.reload-btn {
+  margin-left: -70px;
+}

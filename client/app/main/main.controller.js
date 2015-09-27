@@ -59,9 +59,7 @@ angular.module('nightlifeApp')
 
           if (placesResult.response.groups) {
             $scope.places = placesResult.response.groups[0].items;
-            for (var index = 0; index < $scope.places.length; index++) {
-              userToBar($scope.places[index].venue.id, 0);
-            }
+            resetGoing();
           }
           else {
             $scope.places = [];
@@ -70,7 +68,19 @@ angular.module('nightlifeApp')
       }
     };
 
-    var getGoing = function() {
+    $scope.refreshing = function() {
+      $scope.going = {};
+      $scope.getGoing();
+    };
+
+    var resetGoing = function() {
+      for (var index = 0; index < $scope.places.length; index++) {
+        userToBar($scope.places[index].venue.id, 0);
+      }
+    };
+
+    $scope.getGoing = function() {
+      resetGoing();
       $http.get('api/going')
         .success(function (data) {
           console.log(data);
@@ -136,10 +146,10 @@ angular.module('nightlifeApp')
     };
 
     var init = function() {
-
+      $scope.places = [];
       $scope.going = {};
       $scope.getData();
-      getGoing();
+      $scope.getGoing();
     };
 
     init();
