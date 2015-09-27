@@ -7,6 +7,8 @@
 
 var User = require('../api/user/user.model');
 
+var Going = require('../api/going/going.model');
+
 User.find({}).remove(function() {
   User.create({
     provider: 'local',
@@ -23,4 +25,8 @@ User.find({}).remove(function() {
       console.log('finished populating users');
     }
   );
+});
+
+Going.find({}).remove(function() {}, function(){
+  console.log('finished reseeting going collection');
 });

@@ -26,8 +26,11 @@ angular.module('nightlifeApp')
   });
 
 angular.module('nightlifeApp')
-  .controller('MainCtrl', function ($scope, placesExplorerService, Auth, $window, localStorageService) {
+  .controller('MainCtrl', function ($scope, placesExplorerService, Auth, $window, localStorageService, $http) {
     $scope.awesomeThings = [];
+
+    var thisUser = [];
+    var thisUserId = -1;
 
     if(localStorageService.isSupported) {
       $scope.$city = localStorageService.get('city');
@@ -41,9 +44,9 @@ angular.module('nightlifeApp')
     var nightlifeId = '4d4b7105d754a06376d81259';
 
     $scope.getData = function() {
-        localStorageService.set('city', $scope.$city);
-
-        console.log('local STorage: ' + localStorageService.get('city'));
+        if(localStorageService.isSupported) {
+          localStorageService.set('city', $scope.$city);
+        }
 
       if ($scope.$city.length > 2 ) {
         var offset = 0;
@@ -56,11 +59,8 @@ angular.module('nightlifeApp')
 
           if (placesResult.response.groups) {
             $scope.places = placesResult.response.groups[0].items;
-            console.log($scope.places);
             for (var index = 0; index < $scope.places.length; index++) {
-              if (!$scope.going.hasOwnProperty($scope.places[index].venue.id)) {
-                $scope.going[$scope.places[index].venue.id] = [];
-              }
+              userToBar($scope.places[index].venue.id, 0);
             }
           }
           else {
@@ -70,24 +70,83 @@ angular.module('nightlifeApp')
       }
     };
 
+    var getGoing = function() {
+      $http.get('api/going')
+        .success(function (data) {
+          console.log(data);
+          for (var index = 0; index < data.length; index++) {
+            console.log(data);
+            if (data[index].userName === Auth.getCurrentUser().name) {
+              console.log('userData found!');
+              thisUser = data[index].bars;
+              thisUserId = data[index]._id;
+            }
+            for (var j = 0; j < data[index].bars.length; j++) {
+              userToBar(data[index].bars[j], 1);
+            }
+          }
+        }).error(function (data) {
+          console.log('Error: ' + data);
+        });
+    };
+
+    var userToBar = function (bar, change) {
+      if (!$scope.going.hasOwnProperty(bar)) {
+        $scope.going[bar] = change;
+      } else {
+        $scope.going[bar] += change;
+      }
+    };
+
     $scope.goingBar = function(id) {
-      if(!Auth.isLoggedIn()) {
+      console.log('goingBar: ' + id);
+      if (!Auth.isLoggedIn()) {
+        localStorageService.set('bar', id);
         $window.location.href = '/auth/twitter';
       } else {
-        var i = $scope.going[id].indexOf(Auth.getCurrentUser().name);
-
-        if ($scope.going[id].indexOf(Auth.getCurrentUser().name) == -1) {
-          $scope.going[id].push(Auth.getCurrentUser().name);
+        var i = thisUser.indexOf(id);
+        if (i == -1) {
+          thisUser.push(id);
+          userToBar(id, 1);
         } else {
-          $scope.going[id].splice(i, 1);
+          thisUser.splice(i, 1);
+          userToBar(id, -1);
         }
-        console.log($scope.going);
+
+        console.log(thisUser);
+
+        var updatedDoc;
+        updatedDoc = {
+          userName: Auth.getCurrentUser().name,
+          bars: thisUser
+        };
+
+        if (thisUserId === -1) {
+          $http.post('/api/going', updatedDoc)
+            .success(function (data) {
+              console.log(data);
+              thisUserId = data._id;
+            })
+            .error(function(data) {
+              console.log(data);
+            })
+        } else {
+          $http.put('/api/going/' + thisUserId, updatedDoc)
+            .success(function (data){
+              console.log(data);
+            })
+            .error(function (data) {
+              console.log('Error: ' + data);
+            });
+        }
       }
     };
 
     var init = function() {
+
       $scope.going = {};
       $scope.getData();
+      getGoing();
     };
 
     init();
