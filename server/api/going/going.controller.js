@@ -38,7 +38,6 @@ exports.update = function (req, res) {
     }
     var updated = _.extend(doc, req.body);
     updated.save(function (err) {
-      console.log("saving updated doc... I hope so...");
       if (err) {
         return handleError(res, err);
       }
