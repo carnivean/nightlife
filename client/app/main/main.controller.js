@@ -6,22 +6,6 @@ var requestParms = {
 };
 
 angular.module('nightlifeApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [];
-
-
-    $scope.getData = function() {
-
-
-      // only try to get data if the input is at least 3 chars long
-      if($scope.testData.length >= 3) {
-        console.log($scope.testData);
-      }
-
-    };
-  });
-
-angular.module('nightlifeApp')
   .factory('placesExplorerService', function ($resource) {
 
     var requestUri = 'https://api.foursquare.com/v2/venues/:action';
@@ -40,3 +24,48 @@ angular.module('nightlifeApp')
       });
 
   });
+
+angular.module('nightlifeApp')
+  .controller('MainCtrl', function ($scope, placesExplorerService, $filter) {
+    $scope.awesomeThings = [];
+
+    $scope.$city = 'Munich';
+
+    var nightlifeId = '4d4b7105d754a06376d81259';
+
+    $scope.getData = function() {
+
+        var offset = 0;
+
+        placesExplorerService.get({
+          near: $scope.$city,
+          limit: $scope.pageSize,
+          categoryId: nightlifeId,
+          offset: offset
+        }, function (placesResult) {
+
+          if (placesResult.response.groups) {
+            $scope.places = placesResult.response.groups[0].items;
+            $scope.totalRecordsCount = placesResult.response.totalResults;
+            console.log($scope.places);
+          }
+          else {
+            $scope.places = [];
+            $scope.totalRecordsCount = 0;
+          }
+        });
+
+      // only try to get data if the input is at least 3 chars long
+      if($scope.$city.length >= 3) {
+        console.log($scope.$city);
+      }
+    };
+
+    var init = function() {
+      $scope.getData();
+    };
+
+    init();
+  });
+
+

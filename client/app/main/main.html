@@ -1,14 +1,23 @@
-<header class="background-img hero-unit" id="banner">
+<header class="background-img alpha-bg hero-unit" id="banner">
   <div class="container text-center">
-    <h1>{{testData}}</h1>
-    <input class="no-border" ng-model="testData" ng-change="getData()" placeholder="Cityname...">
+    <h1>{{$city}}</h1>
+    <input class="no-border" ng-model="$city" ng-change="getData()" placeholder="Cityname...">
   </div>
 </header>
 
-<div class="container">
-  <div class="row">
-    <div class="col-lg-12">
-      <!-- <img src="assets/images/black-and-white-alcohol-bar-drinks.jpg"> -->
+<div class="hero-unit">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <ul class="alpha-bg list-group text-left">
+          <li ng-repeat="place in places track by $index" class="alpha-bg list-group-item">
+            <h3>{{place.venue.name}}</h3>
+            <p class="text-info">{{place.tips[0].text}}</p>
+          </li>
+        </ul>
+        {{totalRecordsCount}}
+        {{places}}
+      </div>
     </div>
   </div>
 </div>
