@@ -83,11 +83,8 @@ angular.module('nightlifeApp')
       resetGoing();
       $http.get('api/going')
         .success(function (data) {
-          console.log(data);
           for (var index = 0; index < data.length; index++) {
-            console.log(data);
             if (data[index].userName === Auth.getCurrentUser().name) {
-              console.log('userData found!');
               thisUser = data[index].bars;
               thisUserId = data[index]._id;
             }
