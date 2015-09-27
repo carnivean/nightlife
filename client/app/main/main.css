@@ -19,7 +19,7 @@
     color: #F5F5F5;
     text-align: center;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
-    background: #333;
+    background: rgba(50, 50, 50, 0.7);
 }
 
 .footer {
@@ -42,7 +42,11 @@
   outline-width: 0;
 }
 
-.background-img {
+.no-bg{
+  background-color: rgba(0,0,0,0);
+}
+
+html {
   background: url('../../assets/images/barbg.jpg') no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
