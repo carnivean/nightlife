@@ -99,7 +99,6 @@ angular.module('nightlifeApp')
     };
 
     $scope.goingBar = function(id) {
-      console.log('goingBar: ' + id);
       if (!Auth.isLoggedIn()) {
         localStorageService.set('bar', id);
         $window.location.href = '/auth/twitter';
@@ -113,8 +112,6 @@ angular.module('nightlifeApp')
           userToBar(id, -1);
         }
 
-        console.log(thisUser);
-
         var updatedDoc;
         updatedDoc = {
           userName: Auth.getCurrentUser().name,
@@ -124,19 +121,15 @@ angular.module('nightlifeApp')
         if (thisUserId === -1) {
           $http.post('/api/going', updatedDoc)
             .success(function (data) {
-              console.log(data);
               thisUserId = data._id;
             })
             .error(function(data) {
-              console.log(data);
             })
         } else {
           $http.put('/api/going/' + thisUserId, updatedDoc)
             .success(function (data){
-              console.log(data);
             })
             .error(function (data) {
-              console.log('Error: ' + data);
             });
         }
       }
