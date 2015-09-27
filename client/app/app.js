@@ -5,7 +5,8 @@ angular.module('nightlifeApp', [
   'ngResource',
   'ngSanitize',
   'ngRoute',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'LocalStorageModule'
 ])
   .config(function ($routeProvider, $locationProvider, $httpProvider) {
     $routeProvider
@@ -42,7 +43,12 @@ angular.module('nightlifeApp', [
       }
     };
   })
-
+  .config(function (localStorageServiceProvider) {
+  localStorageServiceProvider
+    .setPrefix('myApp')
+    .setStorageType('sessionStorage')
+    .setNotify(true, true)
+  })
   .run(function ($rootScope, $location, Auth) {
     // Redirect to login if route requires auth and you're not logged in
     $rootScope.$on('$routeChangeStart', function (event, next) {

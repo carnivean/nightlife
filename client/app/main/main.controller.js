@@ -26,42 +26,67 @@ angular.module('nightlifeApp')
   });
 
 angular.module('nightlifeApp')
-  .controller('MainCtrl', function ($scope, placesExplorerService, $filter) {
+  .controller('MainCtrl', function ($scope, placesExplorerService, Auth, $window, localStorageService) {
     $scope.awesomeThings = [];
 
-    $scope.$city = 'Munich';
+    if(localStorageService.isSupported) {
+      $scope.$city = localStorageService.get('city');
+    }
+
+    // check if city exists, if not give it the default value
+    if (!$scope.$city) {
+      $scope.$city = 'Munich';
+    }
 
     var nightlifeId = '4d4b7105d754a06376d81259';
 
     $scope.getData = function() {
+        localStorageService.set('city', $scope.$city);
 
+        console.log('local STorage: ' + localStorageService.get('city'));
+
+      if ($scope.$city.length > 2 ) {
         var offset = 0;
 
         placesExplorerService.get({
           near: $scope.$city,
-          limit: $scope.pageSize,
           categoryId: nightlifeId,
           offset: offset
         }, function (placesResult) {
 
           if (placesResult.response.groups) {
             $scope.places = placesResult.response.groups[0].items;
-            $scope.totalRecordsCount = placesResult.response.totalResults;
             console.log($scope.places);
+            for (var index = 0; index < $scope.places.length; index++) {
+              if (!$scope.going.hasOwnProperty($scope.places[index].venue.id)) {
+                $scope.going[$scope.places[index].venue.id] = [];
+              }
+            }
           }
           else {
             $scope.places = [];
-            $scope.totalRecordsCount = 0;
           }
         });
+      }
+    };
 
-      // only try to get data if the input is at least 3 chars long
-      if($scope.$city.length >= 3) {
-        console.log($scope.$city);
+    $scope.goingBar = function(id) {
+      if(!Auth.isLoggedIn()) {
+        $window.location.href = '/auth/twitter';
+      } else {
+        var i = $scope.going[id].indexOf(Auth.getCurrentUser().name);
+
+        if ($scope.going[id].indexOf(Auth.getCurrentUser().name) == -1) {
+          $scope.going[id].push(Auth.getCurrentUser().name);
+        } else {
+          $scope.going[id].splice(i, 1);
+        }
+        console.log($scope.going);
       }
     };
 
     var init = function() {
+      $scope.going = {};
       $scope.getData();
     };
 
