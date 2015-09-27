@@ -10,7 +10,7 @@
 'use strict';
 
 var _ = require('lodash');
-var City = require('./City.model');
+var City = require('./city.model');
 
 // Get list of Citys
 exports.index = function(req, res) {
